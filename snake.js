@@ -12,6 +12,9 @@ let tileSize;
 const columns = 20; /*Math.floor(canvas.width / tileSize);*/ // for fullscreen
 const rows = 15;/*Math.floor(canvas.height / tileSize);*/ //for fullscreen
 
+let arrowScale = 1;
+arrowScale = Number(localStorage.getItem("arrowScale")) || 1;
+
 const states = {
     MENU: "menu",
     START: "start",
@@ -40,17 +43,50 @@ const food = {
     y: Math.floor(Math.random() * rows),
 }
 
-const colors = {
-    menu: "rgb(121, 65, 65)",
-    background: "rgb(0, 0, 0)",
-    sub: "rgb(236, 179, 179)",
-    border: "white",
-    snake: "rgb(74, 235, 46)",
-    food: "rgb(255, 0, 0)",
-    grid: "rgb(24, 24, 24)",
-    pause: "rgba(0, 0, 0, 0.5)",
-    gameoverbg: "rgba(230, 47, 47, 0.7)",
+const themes = {
+    classic: {
+        menu: "rgb(121, 65, 65)",
+        menubackground: "rgb(95, 38, 38)",
+        background: "rgb(0, 0, 0)",
+        btnbackground: "rgb(38, 6, 6)",
+        sub: "rgb(255, 255, 255)",
+        border: "rgb(255, 255, 255)",
+        snake: "rgb(74, 235, 46)",
+        food: "rgb(255, 0, 0)",
+        grid: "rgb(29, 27, 27)",
+        pause: "rgba(0, 0, 0, 0.5)",
+        gameoverbg: "rgba(255, 0, 0, 0.55)",
+    },
+    neon: {
+        menu: "#001122",
+        menuBackground: "#000814",
+        background: "#000000",
+        btnbackground: "rgb(5, 24, 27)",
+        sub: "#00ffff",
+        border: "#00ffff",
+        snake: "#00ff66",
+        food: "#ff00ff",
+        grid: "#003344",
+        pause: "rgba(0,0,0,0.6)",
+        gameoverbg: "rgba(255,0,255,0.4)"
+    },
+    light: {
+        menu: "#dddddd",
+        menuBackground: "#cccccc",
+        background: "#ffffff",
+        btnbackground: "rgb(218, 217, 217)",        
+        sub: "#222222",
+        border: "#222222",
+        snake: "#2ecc71",
+        food: "#e74c3c",
+        grid: "rgb(0,0,0)",
+        pause: "rgba(255,255,255,0.5)",
+        gameoverbg: "rgba(255,0,0,0.3)"
+    }
+
 };
+
+let colors = themes.classic;
 
 let board = {
     width: columns * tileSize,
@@ -84,19 +120,23 @@ const UIbuttons = [{
     },
     {
         text: "↑",
-        action: "goup"
+        action: "goup",
+        radius: 50
     },
     {
         text: "↓",
-        action: "godown"
+        action: "godown",
+        radius: 50
     },
     {
         text: "←",
-        action: "goleft"
+        action: "goleft",
+        radius: 50
     },
     {
         text: "→",
-        action: "goright"
+        action: "goright",
+        radius: 50
     },
     {
         text: "PAUSE",
@@ -115,6 +155,20 @@ const UIlabels = [{
     {
         text: 0
     }];
+
+const settingsBtns = [{
+        text: "-",
+        action: "reduceSize"
+    },
+    {
+        text: "+",
+        action: "addSize"
+    },
+    {
+        text: "LEAVE",
+        action: "leave"
+    },
+]
 
 let score = UIlabels[3];
 let highscore = UIlabels[2];
@@ -164,6 +218,16 @@ function gameLoop(time){
             drawUI();
             drawPause();
             break;
+        
+        case states.SETTINGS:
+
+            drawSettings();
+            break;
+
+        case states.EXTRA:
+
+            drawExtra();
+            break;
     }
 }
 
@@ -174,7 +238,7 @@ function drawMenu(){
     ctx.fillStyle = colors.menu;
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    ctx.fillStyle = "white";
+    ctx.fillStyle = colors.sub;
     ctx.font = "70px Arial";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -236,7 +300,7 @@ function draw(){
         tileSize,
         tileSize);
 
-    ctx.strokeStyle = "white";
+    ctx.strokeStyle = colors.border;
     ctx.lineWidth = Math.min(board.width, board.height) * 0.005;
 
     ctx.strokeRect(
@@ -346,7 +410,7 @@ function drawUI(){
         const startX = board.x - board.width * 0.3;
         const startY = board.y + board.height * 0.65;
         const gap = board.width * 0.03;
-        const arrowSize = board.width * 0.07;
+        const arrowSize = board.width * 0.09 * arrowScale;
         
 
         const UP = UIbuttons[1];
@@ -354,7 +418,7 @@ function drawUI(){
         const LEFT = UIbuttons[3];
         const RIGHT = UIbuttons[4];
 
-        const buttonGap = arrowSize * 0.3;
+        const buttonGap = arrowSize * 0.1;
 
         UP.x = startX + arrowSize + buttonGap;
         UP.y = startY;
@@ -376,6 +440,7 @@ function drawUI(){
         RIGHT.width = arrowSize;
         RIGHT.height = arrowSize;
 
+        
         drawBtn(UP);
         drawBtn(DOWN);
         drawBtn(LEFT);
@@ -456,6 +521,97 @@ function drawUI(){
 });
 }
 
+function drawSettings(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    ctx.fillStyle = colors.menu;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    ctx.fillStyle = colors.menubackground; 
+    ctx.fillRect(board.x,board.y,board.width,board.height);
+
+    ctx.strokeStyle = colors.border;
+    ctx.lineWidth = Math.min(board.width, board.height) * 0.005;
+
+    ctx.strokeRect(
+        board.x,
+        board.y,
+        board.width,
+        board.height
+    );
+
+    ctx.fillStyle = colors.sub;
+    ctx.font = `${board.height * 0.05}px Arial`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    ctx.fillText(
+        "CHANGE ARROWS SIZE",
+        board.x + board.width / 2,
+        board.y + board.height / 11
+    )
+
+    ctx.font = `${board.height * 0.08}px Arial`;
+    ctx.fillText(
+        arrowScale,
+        board.x + board.width / 2,
+        board.y + board.height / 5
+    )
+
+    const plusSize = settingsBtns[0];
+    const minusSize = settingsBtns[1];
+
+    const buttonSize = board.width * 0.1;
+    const gap = board.width * 0.3;
+    
+
+    for(const label of settingsBtns){
+        label.width = buttonSize;
+        label.height = buttonSize;
+    }
+
+    plusSize.x = board.x + gap;
+    plusSize.y = board.y + board.height / 8
+
+    minusSize.x = board.x + (gap * 2);
+    minusSize.y = board.y + board.height / 8
+
+    drawBtn(plusSize);
+    drawBtn(minusSize);
+
+    const leaveBtn = settingsBtns[2];
+
+    leaveBtn.width = board.width * 0.2;
+    leaveBtn.height = board.height * 0.1;
+
+    leaveBtn.x = board.x + board.width / 2 - leaveBtn.width / 2;
+    leaveBtn.y = board.y + board.height - leaveBtn.height - 20;
+
+    drawBtn(leaveBtn);
+
+
+}
+
+function drawExtra(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    ctx.fillStyle = colors.menu;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    ctx.fillStyle = colors.menubackground; 
+    ctx.fillRect(board.x,board.y,board.width,board.height);
+
+    ctx.strokeStyle = colors.border;
+    ctx.lineWidth = Math.min(board.width, board.height) * 0.005;
+
+    ctx.strokeRect(
+        board.x,
+        board.y,
+        board.width,
+        board.height
+    );
+}
+
 function drawPause(){
 
     ctx.fillStyle = colors.pause;
@@ -474,12 +630,19 @@ function drawPause(){
 }
 
 function drawBtn(button){
-    ctx.fillStyle = "#222";
-    ctx.strokeStyle = "white";
+    ctx.fillStyle = colors.btnbackground;
+    ctx.strokeStyle = colors.sub;
     ctx.lineWidth = 2;
-
-    ctx.fillRect(button.x, button.y, button.width, button.height);
-    ctx.strokeRect(button.x, button.y, button.width, button.height);
+    if (button.radius) {
+        ctx.beginPath();
+        ctx.roundRect(button.x, button.y, button.width, button.height, button.radius);
+        ctx.fill();
+        ctx.stroke();
+    }
+    else{
+        ctx.fillRect(button.x, button.y, button.width, button.height);
+        ctx.strokeRect(button.x, button.y, button.width, button.height);
+    }
 
     ctx.fillStyle = colors.sub;
     ctx.textAlign = "center";
@@ -718,11 +881,11 @@ canvas.addEventListener("pointerdown", event =>{
             break;
 
         case "settings":
-            console.log("Settings");
+            gameState = states.SETTINGS;
             break;
 
         case "extras":
-            console.log("Extras");
+            gameState = states.EXTRA;
             break;
     }
 }   
@@ -781,6 +944,8 @@ canvas.addEventListener("pointerdown", event =>{
                 case "pause":
                     if(gameState === states.GAME){
                         gameState = states.PAUSE;
+                        pauseSound.volume = 0.2;
+                        pauseSound.play();
                     }
                     else if(gameState === states.PAUSE){
                         gameState = states.GAME;
@@ -789,6 +954,31 @@ canvas.addEventListener("pointerdown", event =>{
             }                 
 
             
+        }
+    }
+
+    for(const button of settingsBtns){
+        if (
+            mouseX >= button.x &&
+            mouseX <= button.x + button.width &&
+            mouseY >= button.y &&
+            mouseY <= button.y + button.height
+        ){
+            switch(button.action){
+                case "reduceSize":
+                    arrowScale = Math.max(0.2, Number((arrowScale - 0.05).toFixed(2)));
+                    localStorage.setItem("arrowScale", arrowScale);
+                    console.log(arrowScale);
+                    break;
+                case "addSize":
+                    arrowScale = Math.min(3, Number((arrowScale + 0.05).toFixed(2)));
+                    localStorage.setItem("arrowScale", arrowScale);
+                    console.log(arrowScale);
+                    break;
+                case "leave":
+                    gameState = states.MENU;
+                    break;
+            }
         }
     }
 })
