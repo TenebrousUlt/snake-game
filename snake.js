@@ -15,6 +15,13 @@ const rows = 15;/*Math.floor(canvas.height / tileSize);*/ //for fullscreen
 let arrowScale = 1;
 arrowScale = Number(localStorage.getItem("arrowScale")) || 1;
 
+let Xscale = 0.3;
+let Yscale = 0.65;
+
+Xscale = Number(localStorage.getItem("Xscale")) || 0.3;
+Yscale = Number(localStorage.getItem("Yscale")) || 0.65;
+
+
 const states = {
     MENU: "menu",
     START: "start",
@@ -46,7 +53,7 @@ const food = {
 const themes = {
     classic: {
         menu: "rgb(121, 65, 65)",
-        menubackground: "rgb(95, 38, 38)",
+        menuBackground: "rgb(95, 38, 38)",
         background: "rgb(0, 0, 0)",
         btnbackground: "rgb(38, 6, 6)",
         sub: "rgb(255, 255, 255)",
@@ -87,6 +94,16 @@ const themes = {
 };
 
 let colors = themes.classic;
+
+const savedTheme = localStorage.getItem("theme");
+
+if(savedTheme && themes[savedTheme]){
+    colors = themes[savedTheme];
+}
+else{
+    colors = themes.classic;
+}
+
 
 let board = {
     width: columns * tileSize,
@@ -163,6 +180,40 @@ const settingsBtns = [{
     {
         text: "+",
         action: "addSize"
+    },
+    {
+        text: "LEAVE",
+        action: "leave"
+    },
+    {
+        text: "-",
+        action: "reduceX"
+    },
+        {
+        text: "+",
+        action: "addX"
+    },
+        {
+        text: "-",
+        action: "reduceY"
+    },
+        {
+        text: "+",
+        action: "addY"
+    },
+]
+
+const extraBtns = [{
+        text: "CLASSIC",
+        action: "changetheme1"
+    },
+    {
+        text: "NEON",
+        action: "changetheme2"
+    },
+    {
+        text: "LIGHT",
+        action: "changetheme3"
     },
     {
         text: "LEAVE",
@@ -407,8 +458,8 @@ function drawUI(){
         drawBtn(pauseButton);
 
 
-        const startX = board.x - board.width * 0.3;
-        const startY = board.y + board.height * 0.65;
+        const startX = board.x - board.width * Xscale;
+        const startY = board.y + board.height * Yscale;
         const gap = board.width * 0.03;
         const arrowSize = board.width * 0.09 * arrowScale;
         
@@ -527,7 +578,7 @@ function drawSettings(){
     ctx.fillStyle = colors.menu;
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    ctx.fillStyle = colors.menubackground; 
+    ctx.fillStyle = colors.menuBackground; 
     ctx.fillRect(board.x,board.y,board.width,board.height);
 
     ctx.strokeStyle = colors.border;
@@ -579,13 +630,75 @@ function drawSettings(){
     drawBtn(plusSize);
     drawBtn(minusSize);
 
+
+    ctx.fillStyle = colors.sub;
+    ctx.font = `${board.height * 0.05}px Arial`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    ctx.fillText(
+        "CHANGE ARROWS X POSITION(0.3)",
+        board.x + board.width / 2,
+        board.y + board.height / 3
+    )
+
+    ctx.font = `${board.height * 0.08}px Arial`;
+    ctx.fillText(
+        Xscale,
+        board.x + board.width / 2,
+        board.y + board.height / 2.1
+    )
+
+
+    ctx.fillStyle = colors.sub;
+    ctx.font = `${board.height * 0.05}px Arial`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    ctx.fillText(
+        "CHANGE ARROWS Y POSITION(0.65)",
+        board.x + board.width / 2,
+        board.y + board.height / 1.65
+    )
+
+    ctx.font = `${board.height * 0.08}px Arial`;
+    ctx.fillText(
+        Yscale,
+        board.x + board.width / 2,
+        board.y + board.height / 1.3
+    )
+
+
+    const plusX = settingsBtns[3];
+    const minusX = settingsBtns[4];
+    const plusY = settingsBtns[5];
+    const minusY = settingsBtns[6];
+
+    plusX.x = board.x + gap;
+    plusX.y = board.y + board.height / 2.5;
+
+    minusX.x = board.x + (gap * 2);
+    minusX.y = board.y + board.height / 2.5;
+
+    plusY.x = board.x + gap;
+    plusY.y = board.y + board.height / 1.45;
+
+    minusY.x = board.x + (gap * 2);
+    minusY.y = board.y + board.height / 1.45;
+
+    drawBtn(plusX);
+    drawBtn(minusX);
+    drawBtn(plusY);
+    drawBtn(minusY);
+
+
     const leaveBtn = settingsBtns[2];
 
     leaveBtn.width = board.width * 0.2;
     leaveBtn.height = board.height * 0.1;
 
     leaveBtn.x = board.x + board.width / 2 - leaveBtn.width / 2;
-    leaveBtn.y = board.y + board.height - leaveBtn.height - 20;
+    leaveBtn.y = board.y + board.height - leaveBtn.height * 0.01;
 
     drawBtn(leaveBtn);
 
@@ -598,7 +711,7 @@ function drawExtra(){
     ctx.fillStyle = colors.menu;
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    ctx.fillStyle = colors.menubackground; 
+    ctx.fillStyle = colors.menuBackground; 
     ctx.fillRect(board.x,board.y,board.width,board.height);
 
     ctx.strokeStyle = colors.border;
@@ -610,12 +723,62 @@ function drawExtra(){
         board.width,
         board.height
     );
+
+    ctx.fillStyle = colors.sub;
+    ctx.font = `${board.height * 0.08}px Arial`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    ctx.fillText(
+        "CHANGE THEMES",
+        board.x + board.width / 2,
+        board.y + board.height / 11
+    )
+    
+    const buttonWidth = board.width * 0.2;
+    const buttonHeight = board.width * 0.1;
+    const gap = board.width * 0.1;
+
+    for(const label of extraBtns){
+        label.width = buttonWidth;
+        label.height = buttonHeight;
+    }
+    const theme1 = extraBtns[0];
+    const theme2 = extraBtns[1];
+    const theme3 = extraBtns[2];
+
+    theme1.fontScale = 0.3;
+    theme2.fontScale = 0.3;
+    theme3.fontScale = 0.3;
+
+    theme1.x = board.x + gap;
+    theme1.y = board.y + board.height / 6;
+
+    theme2.x = board.x + board.width / 2 - theme2.width / 2;
+    theme2.y = board.y + board.height / 6;
+
+    theme3.x = board.x + board.width - gap - theme3.width;
+    theme3.y = board.y + board.height / 6;
+
+    drawBtn(theme1);
+    drawBtn(theme2);
+    drawBtn(theme3);
+
+    const leaveBtn = extraBtns[3];
+
+    leaveBtn.width = board.width * 0.2;
+    leaveBtn.height = board.height * 0.1;
+
+    leaveBtn.x = board.x + board.width / 2 - leaveBtn.width / 2;
+    leaveBtn.y = board.y + board.height - leaveBtn.height * 0.01;
+
+    drawBtn(leaveBtn);
 }
 
 function drawPause(){
 
     ctx.fillStyle = colors.pause;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0,0,canvas.width,canvas.height);
 
     ctx.fillStyle = colors.sub;
     ctx.font = `${board.height * 0.08}px Arial`;
@@ -625,7 +788,7 @@ function drawPause(){
     ctx.fillText(
         "PAUSE",
         board.x + board.width / 2,
-        board.y + board.height / 2
+        board.y + board.height / 2  
     )
 }
 
@@ -633,6 +796,9 @@ function drawBtn(button){
     ctx.fillStyle = colors.btnbackground;
     ctx.strokeStyle = colors.sub;
     ctx.lineWidth = 2;
+
+    const fontScale = button.fontScale || 0.6
+
     if (button.radius) {
         ctx.beginPath();
         ctx.roundRect(button.x, button.y, button.width, button.height, button.radius);
@@ -648,7 +814,7 @@ function drawBtn(button){
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    ctx.font = `${Math.min(button.width, button.height) * 0.6}px Arial`;
+    ctx.font = `${Math.min(button.width, button.height) * fontScale}px Arial`;
 
     ctx.fillText(
     button.text,
@@ -900,9 +1066,11 @@ canvas.addEventListener("pointerdown", event =>{
         ){
             switch(button.action){
                 case "playgame":
-                    gameState = states.GAME;
-                    restartGame();
-                    break;
+                    if(gameState === states.START || gameState === states.GAMEOVER){
+                        gameState = states.GAME;
+                        restartGame();
+                        break;
+                    }
             }
         }
     }
@@ -968,12 +1136,26 @@ canvas.addEventListener("pointerdown", event =>{
                 case "reduceSize":
                     arrowScale = Math.max(0.2, Number((arrowScale - 0.05).toFixed(2)));
                     localStorage.setItem("arrowScale", arrowScale);
-                    console.log(arrowScale);
                     break;
                 case "addSize":
                     arrowScale = Math.min(3, Number((arrowScale + 0.05).toFixed(2)));
                     localStorage.setItem("arrowScale", arrowScale);
-                    console.log(arrowScale);
+                    break;
+                case "reduceX":
+                    Xscale = Number((Xscale + 0.05).toFixed(2));
+                    localStorage.setItem("Xscale", Xscale);
+                    break;
+                case "addX":
+                    Xscale = Number((Xscale - 0.05).toFixed(2));
+                    localStorage.setItem("Xscale", Xscale);
+                    break;
+                case "reduceY":
+                    Yscale = Number((Yscale - 0.05).toFixed(2));
+                    localStorage.setItem("Yscale", Yscale);
+                    break;
+                case "addY":
+                    Yscale = Number((Yscale + 0.05).toFixed(2));
+                    localStorage.setItem("Yscale", Yscale);
                     break;
                 case "leave":
                     gameState = states.MENU;
@@ -981,7 +1163,34 @@ canvas.addEventListener("pointerdown", event =>{
             }
         }
     }
-})
+
+    for(const button of extraBtns){
+        if (
+            mouseX >= button.x &&
+            mouseX <= button.x + button.width &&
+            mouseY >= button.y &&
+            mouseY <= button.y + button.height
+        ){
+            switch(button.action){
+                case "changetheme1":
+                    colors = themes.classic;
+                    localStorage.setItem("theme", "classic");
+                    break;
+                case "changetheme2":
+                    colors = themes.neon;
+                    localStorage.setItem("theme", "neon");
+                    break;
+                case "changetheme3":
+                    colors = themes.light;
+                    localStorage.setItem("theme", "light");
+                    break;
+                case "leave":
+                    gameState = states.MENU;
+                    break;
+            }
+        }
+    }
+});
 
 window.addEventListener("resize", event =>{
     canvas.width = window.innerWidth;
@@ -1009,6 +1218,12 @@ window.addEventListener("resize", event =>{
         draw()
         drawUI();
         drawPause();
+    }
+    if(gameState === states.SETTINGS){
+        drawSettings();
+    }
+    if(gameState === states.EXTRA){
+        drawExtra();
     }
 
 
