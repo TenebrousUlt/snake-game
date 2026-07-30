@@ -52,10 +52,10 @@ const food = {
 
 const themes = {
     classic: {
-        menu: "rgb(121, 65, 65)",
-        menuBackground: "rgb(95, 38, 38)",
+        menu: "rgb(0, 0, 0)",
+        menuBackground: "rgb(28, 28, 28)",
         background: "rgb(0, 0, 0)",
-        btnbackground: "rgb(38, 6, 6)",
+        btnbackground: "rgb(19, 17, 17)",
         sub: "rgb(255, 255, 255)",
         border: "rgb(255, 255, 255)",
         snake: "rgb(74, 235, 46)",
@@ -89,7 +89,85 @@ const themes = {
         grid: "rgb(0,0,0)",
         pause: "rgba(255,255,255,0.5)",
         gameoverbg: "rgba(255,0,0,0.3)"
-    }
+    },
+    earth: {
+        menu: "#3e563e",
+        menuBackground: "#1f2f22",
+        background: "#091008",
+        btnbackground: "#93a889",        
+        sub: "#ced9df",
+        border: "#93a889",
+        snake: "#7993a0",
+        food: "#523e3c",
+        grid: "rgb(38, 49, 43)",
+        pause: "rgba(0,0,0,0.6)",
+        gameoverbg: "rgba(120, 0, 0, 0.3)"
+    },
+    purple: {
+        menu: "#4e19a6",
+        menuBackground: "#5f2396",
+        background: "#140729",
+        btnbackground: "#35189f",        
+        sub: "#c7a6e5",
+        border: "#1b0146",
+        snake: "#4863e7",
+        food: "#cab3df",
+        grid: "rgb(15, 0, 31)",
+        pause: "rgba(0,0,0,0.6)",
+        gameoverbg: "rgba(46, 22, 50, 0.3)"
+    },
+    elfenlied: {
+        menu: "#a70545",
+        menuBackground: "#c40752",
+        background: "#63032a",
+        btnbackground: "#c63067",           
+        sub: "#060004",
+        border: "#b12c5d",
+        snake: "#dc9dc5",
+        food: "#ff1b02",
+        grid: "#ad0a4b45",
+        pause: "rgba(0,0,0,0.6)",
+        gameoverbg: "#d10a5a3c"
+    },
+    sewers: {
+        menu: "#373d34",
+        menuBackground: "#232322",
+        background: "#131716",
+        btnbackground: "#2c3134",
+        sub: "	#464f54",
+        border: "#2c3134",
+        snake: "#486c57",
+        food: "#613b36",
+        grid: "#202113",
+        pause: "rgba(0,0,0,0.6)",
+        gameoverbg: "rgba(97, 44, 44, 0.3)"
+    },
+    ocean: {
+        menu: "#81A6C6",
+        menuBackground: "#AACDDC",
+        background: "#81A6C6",
+        btnbackground: "#a0968a",        
+        sub: "#F3E3D0",
+        border: "#8fc7db",
+        snake: "#b3dfc5",
+        food: "#edc3bf",
+        grid: "rgb(62, 93, 101)",
+        pause: "rgba(0,0,0,0.6)",
+        gameoverbg: "rgba(236, 145, 145, 0.3)"
+    },
+    fall: {
+        menu: "#480c25",
+        menuBackground: "#5f152e",
+        background: "#1a0208",
+        btnbackground: "#520519",        
+        sub: "#d3daed",
+        border: "#000000",
+        snake: "#765e76",
+        food: "#e95111",
+        grid: "rgb(0,0,0)",
+        pause: "rgba(0,0,0,0.6)",
+        gameoverbg: "#5c2c46"
+    },
 
 };
 
@@ -218,6 +296,30 @@ const extraBtns = [{
     {
         text: "LEAVE",
         action: "leave"
+    },
+    {
+        text: "EARTH",
+        action: "changetheme4"
+    },
+    {
+        text: "PURPLE",
+        action: "changetheme5"
+    },
+    {
+        text: "ELFEN LIED",
+        action: "changetheme6"
+    },
+    {
+        text: "SEWERS",
+        action: "changetheme7"
+    },
+    {
+        text: "OCEAN",
+        action: "changetheme8"
+    },
+    {
+        text: "FALL",
+        action: "changetheme9"
     },
 ]
 
@@ -746,10 +848,19 @@ function drawExtra(){
     const theme1 = extraBtns[0];
     const theme2 = extraBtns[1];
     const theme3 = extraBtns[2];
+    const theme4 = extraBtns[4];
+    const theme5 = extraBtns[5];
+    const theme6 = extraBtns[6];
+    const theme7 = extraBtns[7];
+    const theme8 = extraBtns[8];
+    const theme9 = extraBtns[9];
 
-    theme1.fontScale = 0.3;
-    theme2.fontScale = 0.3;
-    theme3.fontScale = 0.3;
+    for(const button of extraBtns){
+        if(button.action === "leave") continue;
+
+        button.fontScale = 0.3;
+    }
+    
 
     theme1.x = board.x + gap;
     theme1.y = board.y + board.height / 6;
@@ -760,9 +871,33 @@ function drawExtra(){
     theme3.x = board.x + board.width - gap - theme3.width;
     theme3.y = board.y + board.height / 6;
 
+    theme4.x = board.x + gap;
+    theme4.y = board.y + board.height / 2.75;
+
+    theme5.x = board.x + board.width / 2 - theme2.width / 2;
+    theme5.y = board.y + board.height / 2.75;
+
+    theme6.x = board.x + board.width - gap - theme3.width;
+    theme6.y = board.y + board.height / 2.75;
+
+    theme7.x = board.x + gap;
+    theme7.y = board.y + board.height / 1.75;
+
+    theme8.x = board.x + board.width / 2 - theme2.width / 2;
+    theme8.y = board.y + board.height / 1.75;
+
+    theme9.x = board.x + board.width - gap - theme3.width;
+    theme9.y = board.y + board.height / 1.75;
+
     drawBtn(theme1);
     drawBtn(theme2);
     drawBtn(theme3);
+    drawBtn(theme4);
+    drawBtn(theme5);
+    drawBtn(theme6);
+    drawBtn(theme7);
+    drawBtn(theme8);
+    drawBtn(theme9);
 
     const leaveBtn = extraBtns[3];
 
@@ -1033,160 +1168,198 @@ canvas.addEventListener("pointerdown", event =>{
     const mouseX = event.offsetX;
     const mouseY = event.offsetY;
 
-    for(const button of Menubuttons) {
-        if (
-            mouseX >= button.x &&
-            mouseX <= button.x + button.width &&
-            mouseY >= button.y &&
-            mouseY <= button.y + button.height
-){
-    console.log(button.action);
-    switch (button.action) {
-        case "play":
-            gameState = states.START;
-            break;
+    if(gameState === states.MENU){
+        for(const button of Menubuttons) {
+            if (
+                mouseX >= button.x &&
+                mouseX <= button.x + button.width &&
+                mouseY >= button.y &&
+                mouseY <= button.y + button.height
+            ){
+        console.log(button.action);
+        switch (button.action) {
+            case "play":
+                gameState = states.START;
+                return;
 
-        case "settings":
-            gameState = states.SETTINGS;
-            break;
+            case "settings":
+                gameState = states.SETTINGS;
+                return;
 
-        case "extras":
-            gameState = states.EXTRA;
-            break;
+            case "extras":
+                gameState = states.EXTRA;
+                return;
+        }
+            }   
+        }
     }
-}   
-}
 
-    for(const button of Startbuttons){
-        if (
-            mouseX >= button.x &&
-            mouseX <= button.x + button.width &&
-            mouseY >= button.y &&
-            mouseY <= button.y + button.height
-        ){
-            switch(button.action){
-                case "playgame":
-                    if(gameState === states.START || gameState === states.GAMEOVER){
-                        gameState = states.GAME;
-                        restartGame();
+    if(gameState === states.START || gameState === states.GAMEOVER){
+        for(const button of Startbuttons){
+            if (
+                mouseX >= button.x &&
+                mouseX <= button.x + button.width &&
+                mouseY >= button.y &&
+                mouseY <= button.y + button.height
+            ){
+                switch(button.action){
+                    case "playgame":
+                        if(gameState === states.START || gameState === states.GAMEOVER){
+                            gameState = states.GAME;
+                            restartGame();
+                            break;
+                        }
+                }
+            }
+        }
+    }
+
+    if(gameState === states.START || gameState === states.GAME || states.GAMEOVER){
+        for(const button of UIbuttons){
+            if (
+                mouseX >= button.x &&
+                mouseX <= button.x + button.width &&
+                mouseY >= button.y &&
+                mouseY <= button.y + button.height
+            ){
+                switch(button.action){
+                    case "leavegame":
+                        gameState = states.MENU;
+                        score.text = 0;
                         break;
-                    }
+                }
+                switch(button.action){
+                    case "goup":
+                        nextDirection = "up";
+                        break;
+                }
+                switch(button.action){
+                    case "godown":
+                        nextDirection = "down";
+                        break;
+                }
+                switch(button.action){
+                    case "goleft":
+                        nextDirection = "left";
+                        break;
+                }
+                switch(button.action){
+                    case "goright":
+                        nextDirection = "right";
+                        break;
+                }  
+                switch(button.action){
+                    case "pause":
+                        if(gameState === states.GAME){
+                            gameState = states.PAUSE;
+                            pauseSound.volume = 0.2;
+                            pauseSound.play();
+                        }
+                        else if(gameState === states.PAUSE){
+                            gameState = states.GAME;
+                        }
+                        break;
+                }                 
+
+                
             }
         }
     }
 
-    for(const button of UIbuttons){
-        if (
-            mouseX >= button.x &&
-            mouseX <= button.x + button.width &&
-            mouseY >= button.y &&
-            mouseY <= button.y + button.height
-        ){
-            switch(button.action){
-                case "leavegame":
-                    gameState = states.MENU;
-                    score.text = 0;
-                    break;
-            }
-            switch(button.action){
-                case "goup":
-                    nextDirection = "up";
-                    break;
-            }
-            switch(button.action){
-                case "godown":
-                    nextDirection = "down";
-                    break;
-            }
-            switch(button.action){
-                case "goleft":
-                    nextDirection = "left";
-                    break;
-            }
-            switch(button.action){
-                case "goright":
-                    nextDirection = "right";
-                    break;
-            }  
-            switch(button.action){
-                case "pause":
-                    if(gameState === states.GAME){
-                        gameState = states.PAUSE;
-                        pauseSound.volume = 0.2;
-                        pauseSound.play();
-                    }
-                    else if(gameState === states.PAUSE){
-                        gameState = states.GAME;
-                    }
-                    break;
-            }                 
-
-            
-        }
-    }
-
-    for(const button of settingsBtns){
-        if (
-            mouseX >= button.x &&
-            mouseX <= button.x + button.width &&
-            mouseY >= button.y &&
-            mouseY <= button.y + button.height
-        ){
-            switch(button.action){
-                case "reduceSize":
-                    arrowScale = Math.max(0.2, Number((arrowScale - 0.05).toFixed(2)));
-                    localStorage.setItem("arrowScale", arrowScale);
-                    break;
-                case "addSize":
-                    arrowScale = Math.min(3, Number((arrowScale + 0.05).toFixed(2)));
-                    localStorage.setItem("arrowScale", arrowScale);
-                    break;
-                case "reduceX":
-                    Xscale = Number((Xscale + 0.05).toFixed(2));
-                    localStorage.setItem("Xscale", Xscale);
-                    break;
-                case "addX":
-                    Xscale = Number((Xscale - 0.05).toFixed(2));
-                    localStorage.setItem("Xscale", Xscale);
-                    break;
-                case "reduceY":
-                    Yscale = Number((Yscale - 0.05).toFixed(2));
-                    localStorage.setItem("Yscale", Yscale);
-                    break;
-                case "addY":
-                    Yscale = Number((Yscale + 0.05).toFixed(2));
-                    localStorage.setItem("Yscale", Yscale);
-                    break;
-                case "leave":
-                    gameState = states.MENU;
-                    break;
+    if(gameState === states.SETTINGS){
+        for(const button of settingsBtns){
+            if (
+                mouseX >= button.x &&
+                mouseX <= button.x + button.width &&
+                mouseY >= button.y &&
+                mouseY <= button.y + button.height
+            ){
+                switch(button.action){
+                    case "reduceSize":
+                        arrowScale = Math.max(0, Number((arrowScale - 0.05).toFixed(2)));
+                        localStorage.setItem("arrowScale", arrowScale);
+                        break;
+                    case "addSize":
+                        arrowScale = Math.min(3, Number((arrowScale + 0.05).toFixed(2)));
+                        localStorage.setItem("arrowScale", arrowScale);
+                        break;
+                    case "reduceX":
+                        Xscale = Number((Xscale + 0.05).toFixed(2));
+                        localStorage.setItem("Xscale", Xscale);
+                        break;
+                    case "addX":
+                        Xscale = Number((Xscale - 0.05).toFixed(2));
+                        localStorage.setItem("Xscale", Xscale);
+                        break;
+                    case "reduceY":
+                        Yscale = Number((Yscale - 0.05).toFixed(2));
+                        localStorage.setItem("Yscale", Yscale);
+                        break;
+                    case "addY":
+                        Yscale = Number((Yscale + 0.05).toFixed(2));
+                        localStorage.setItem("Yscale", Yscale);
+                        break;
+                    case "leave":
+                        gameState = states.MENU;
+                        break;
+                }
             }
         }
     }
 
-    for(const button of extraBtns){
-        if (
-            mouseX >= button.x &&
-            mouseX <= button.x + button.width &&
-            mouseY >= button.y &&
-            mouseY <= button.y + button.height
-        ){
-            switch(button.action){
-                case "changetheme1":
-                    colors = themes.classic;
-                    localStorage.setItem("theme", "classic");
-                    break;
-                case "changetheme2":
-                    colors = themes.neon;
-                    localStorage.setItem("theme", "neon");
-                    break;
-                case "changetheme3":
-                    colors = themes.light;
-                    localStorage.setItem("theme", "light");
-                    break;
-                case "leave":
-                    gameState = states.MENU;
-                    break;
+    if(gameState === states.EXTRA){
+        for(const button of extraBtns){
+            if (
+                mouseX >= button.x &&
+                mouseX <= button.x + button.width &&
+                mouseY >= button.y &&
+                mouseY <= button.y + button.height
+            ){
+                switch(button.action){
+                    case "changetheme1":
+                        colors = themes.classic;
+                        localStorage.setItem("theme", "classic");
+                        break;
+                    case "changetheme2":
+                        colors = themes.neon;
+                        localStorage.setItem("theme", "neon");
+                        break;
+                    case "changetheme3":
+                        colors = themes.light;
+                        localStorage.setItem("theme", "light");
+                        break;
+                    case "changetheme4":
+                        colors = themes.earth;
+                        localStorage.setItem("theme", "earth");
+                        break;
+                    case "changetheme5":
+                        colors = themes.purple;
+                        localStorage.setItem("theme", "purple");
+                        break;
+                    case "changetheme6":
+                        colors = themes.elfenlied;
+                        localStorage.setItem("theme", "elfenlied");
+                        break;
+                    case "changetheme7":
+                        colors = themes.sewers;
+                        localStorage.setItem("theme", "sewers");
+                        break;
+                    case "changetheme8":
+                        colors = themes.ocean;
+                        localStorage.setItem("theme", "ocean");
+                        break;
+                    case "changetheme9":
+                        colors = themes.fall;
+                        localStorage.setItem("theme", "fall");
+                        break;
+                    /*case "changetheme3":
+                        colors = themes.light;
+                        localStorage.setItem("theme", "light");
+                        break;*/
+                    case "leave":
+                        gameState = states.MENU;
+                        break;
+                }
             }
         }
     }
