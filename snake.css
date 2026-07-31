@@ -1,15 +1,20 @@
 body{
     margin:0;
     overflow:hidden;
-    touch-action: none;
+    touch-action:none;
 }
+
 #game{
     display:block;
 }
- 
+
 canvas {
+    user-select:none;
+    -webkit-user-select:none;
+    touch-action:none;
+}
+
+* {
     -webkit-tap-highlight-color: transparent;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: none;
+    -webkit-touch-callout: none;
 }
