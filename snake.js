@@ -4,7 +4,38 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-const pauseSound = new Audio("audio/touhou-pause-sfx.mp3");
+const images ={
+    board: new Image(),
+    background: new Image(),
+    snake: new Image(),
+    snake2: new Image(),
+    snake3: new Image(),
+    food: new Image(),
+}
+const sounds ={
+    pause: new Audio(),
+    music: new Audio(),
+    getPoint: new Audio(),
+    lost: new Audio(),
+}
+sounds.pause.src =("audio/pause.mp3");
+sounds.music.src =("audio/music.mp3");
+sounds.music.loop = true;
+sounds.music.volume = 0.05;
+sounds.getPoint.src = ("audio/kamimashita.mp3");
+sounds.getPoint.volume = 0.2;
+sounds.lost.src = "audio/sound1.mp3";
+sounds.lost.volume = 0.2;
+sounds.lost.loop = false;
+
+images.board.src = "images/lost.jpg";
+images.background.src = "images/background2.jpg";
+images.snake.src = "images/snake.jpg";
+images.snake2.src = "images/snake2.jpg";
+
+images.food.src = "images/food.jpg";
+
+
 
 let tileSize;
 //const tileSize = 50;
@@ -56,6 +87,8 @@ const themes = {
         menuBackground: "rgb(28, 28, 28)",
         background: "rgb(0, 0, 0)",
         btnbackground: "rgb(19, 17, 17)",
+        btnhover: "rgb(37, 37, 37)",
+        btnclick: "rgb(48, 48, 48)",
         sub: "rgb(255, 255, 255)",
         border: "rgb(255, 255, 255)",
         snake: "rgb(74, 235, 46)",
@@ -69,6 +102,8 @@ const themes = {
         menuBackground: "#000814",
         background: "#000000",
         btnbackground: "rgb(5, 24, 27)",
+        btnhover: "rgb(10, 48, 54)",
+        btnclick: "rgb(12, 57, 64)",
         sub: "#00ffff",
         border: "#00ffff",
         snake: "#00ff66",
@@ -81,7 +116,9 @@ const themes = {
         menu: "#dddddd",
         menuBackground: "#cccccc",
         background: "#ffffff",
-        btnbackground: "rgb(218, 217, 217)",        
+        btnbackground: "rgb(218, 217, 217)",
+        btnhover: "rgb(168, 168, 168)",
+        btnclick: "rgb(98, 98, 98)",
         sub: "#222222",
         border: "#222222",
         snake: "#2ecc71",
@@ -94,7 +131,9 @@ const themes = {
         menu: "#3e563e",
         menuBackground: "#1f2f22",
         background: "#091008",
-        btnbackground: "#93a889",        
+        btnbackground: "#93a889",
+        btnhover: "#5f6d58",
+        btnclick: "#495444",
         sub: "#ced9df",
         border: "#93a889",
         snake: "#7993a0",
@@ -107,7 +146,9 @@ const themes = {
         menu: "#4e19a6",
         menuBackground: "#5f2396",
         background: "#140729",
-        btnbackground: "#35189f",        
+        btnbackground: "#35189f",
+        btnhover: "#281278",
+        btnclick: "#1f0e5e",
         sub: "#c7a6e5",
         border: "#1b0146",
         snake: "#4863e7",
@@ -120,7 +161,9 @@ const themes = {
         menu: "#a70545",
         menuBackground: "#c40752",
         background: "#63032a",
-        btnbackground: "#c63067",           
+        btnbackground: "#c63067",
+        btnhover: "#9d2551",
+        btnclick: "#821e43",  
         sub: "#060004",
         border: "#b12c5d",
         snake: "#dc9dc5",
@@ -134,6 +177,8 @@ const themes = {
         menuBackground: "#232322",
         background: "#131716",
         btnbackground: "#2c3134",
+        btnhover: "#202426",
+        btnclick: "#181b1c",
         sub: "	#464f54",
         border: "#2c3134",
         snake: "#486c57",
@@ -146,7 +191,9 @@ const themes = {
         menu: "#81A6C6",
         menuBackground: "#AACDDC",
         background: "#81A6C6",
-        btnbackground: "#a0968a",        
+        btnbackground: "#a0968a",
+        btnhover: "#7c746a",   
+        btnclick: "#615b53",
         sub: "#F3E3D0",
         border: "#8fc7db",
         snake: "#b3dfc5",
@@ -159,7 +206,9 @@ const themes = {
         menu: "#480c25",
         menuBackground: "#5f152e",
         background: "#1a0208",
-        btnbackground: "#520519",        
+        btnbackground: "#520519",
+        btnhover: "#3a0412",
+        btnclick: "#28030d",     
         sub: "#d3daed",
         border: "#000000",
         snake: "#765e76",
@@ -168,12 +217,30 @@ const themes = {
         pause: "rgba(0,0,0,0.6)",
         gameoverbg: "#5c2c46"
     },
+    bake: {
+        menu: "#0D0D0D",
+        menuBackground: "#1B1028",
+        background: "#0D0D0D",
+        btnbackground: "#1B1028",
+        btnhover: "#28183b",
+        btnclick: "#FFD166",     
+        sub: "#F5F5F5",
+        border: "#000000",
+        snake: "#b966b9",
+        food: "#da6e40",
+        grid: "rgb(0,0,0)",
+        pause: "rgba(0,0,0,0.6)",
+        gameoverbg: "#EF4444"
+    },
 
 };
 
 let colors = themes.classic;
+let imageTheme = false;
 
 const savedTheme = localStorage.getItem("theme");
+
+imageTheme = localStorage.getItem("imageTheme") === "true";
 
 if(savedTheme && themes[savedTheme]){
     colors = themes[savedTheme];
@@ -181,7 +248,6 @@ if(savedTheme && themes[savedTheme]){
 else{
     colors = themes.classic;
 }
-
 
 let board = {
     width: columns * tileSize,
@@ -193,49 +259,69 @@ let board = {
 
 const Menubuttons = [{
         text: "EXTRAS",
-        action: "extras"
+        action: "extras",
+        hover: false,
+        pressed: false,
     },
     {
         text: "PLAY",
-        action: "play"
+        action: "play",
+        hover: false,
+        pressed: false
     },
     {
         text: "SETTINGS",
-        action: "settings"
+        action: "settings",
+        hover: false,
+        pressed: false
     },
 ]
 const Startbuttons = [{
     text: "PLAY",
-    action: "playgame"
+    action: "playgame",
+    hover: false,
+    pressed: false
 }]
 
 const UIbuttons = [{
         text: "LEAVE",
-        action: "leavegame"
+        action: "leavegame",
+        hover: false,
+        pressed: false
     },
     {
         text: "↑",
         action: "goup",
-        radius: 50
+        radius: 50,
+        hover: false,
+        pressed: false
     },
     {
         text: "↓",
         action: "godown",
-        radius: 50
+        radius: 50,
+        hover: false,
+        pressed: false
     },
     {
         text: "←",
         action: "goleft",
-        radius: 50
+        radius: 50,
+        hover: false,
+        pressed: false
     },
     {
         text: "→",
         action: "goright",
-        radius: 50
+        radius: 50,
+        hover: false,
+        pressed: false
     },
     {
         text: "PAUSE",
-        action: "pause"
+        action: "pause",
+        hover: false,
+        pressed: false
     }];
 
 const UIlabels = [{
@@ -253,81 +339,123 @@ const UIlabels = [{
 
 const settingsBtns = [{
         text: "-",
-        action: "reduceSize"
+        action: "reduceSize",
+        hover: false,
+        pressed: false
     },
     {
         text: "+",
-        action: "addSize"
+        action: "addSize",
+        hover: false,
+        pressed: false
     },
     {
         text: "LEAVE",
-        action: "leave"
+        action: "leave",
+        hover: false,
+        pressed: false
     },
     {
         text: "-",
-        action: "reduceX"
+        action: "reduceX",
+        hover: false,
+        pressed: false
     },
         {
         text: "+",
-        action: "addX"
+        action: "addX",
+        hover: false,
+        pressed: false
     },
         {
         text: "-",
-        action: "reduceY"
+        action: "reduceY",
+        hover: false,
+        pressed: false
     },
         {
         text: "+",
-        action: "addY"
+        action: "addY",
+        hover: false,
+        pressed: false
     },
 ]
 
 const extraBtns = [{
         text: "CLASSIC",
-        action: "changetheme1"
+        action: "changetheme1",
+        hover: false,
+        pressed: false
     },
     {
         text: "NEON",
-        action: "changetheme2"
+        action: "changetheme2",
+        hover: false,
+        pressed: false
     },
     {
         text: "LIGHT",
-        action: "changetheme3"
+        action: "changetheme3",
+        hover: false,
+        pressed: false
     },
     {
         text: "LEAVE",
-        action: "leave"
+        action: "leave",
+        hover: false,
+        pressed: false
     },
     {
         text: "EARTH",
-        action: "changetheme4"
+        action: "changetheme4",
+        hover: false,
+        pressed: false
     },
     {
         text: "PURPLE",
-        action: "changetheme5"
+        action: "changetheme5",
+        hover: false,
+        pressed: false
     },
     {
         text: "ELFEN LIED",
-        action: "changetheme6"
+        action: "changetheme6",
+        hover: false,
+        pressed: false
     },
     {
         text: "SEWERS",
-        action: "changetheme7"
+        action: "changetheme7",
+        hover: false,
+        pressed: false
     },
     {
         text: "OCEAN",
-        action: "changetheme8"
+        action: "changetheme8",
+        hover: false,
+        pressed: false
     },
     {
         text: "FALL",
-        action: "changetheme9"
+        action: "changetheme9",
+        hover: false,
+        pressed: false
     },
+    {
+        text: "UNLOCK BY GETTING 50 POINTS",
+        action: "changetheme10",
+        hover: false,
+        pressed: false,
+        locked: true
+    },
+
 ]
 
 let score = UIlabels[3];
 let highscore = UIlabels[2];
 highscore.text = localStorage.getItem("highscore", highscore.text) || 0;
 
-
+let unlocked;
 
 function gameLoop(time){
 
@@ -388,8 +516,18 @@ function gameLoop(time){
 function drawMenu(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    ctx.fillStyle = colors.menu;
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+    if(imageTheme){
+        ctx.drawImage(
+        images.background,
+        0,
+        0,
+        canvas.width,
+        canvas.height);
+    }
+    else{
+        ctx.fillStyle = colors.menu;
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+    }
 
     ctx.fillStyle = colors.sub;
     ctx.font = "70px Arial";
@@ -428,30 +566,76 @@ function drawMenu(){
 
         startX += button.width + gap;
     }
-
 }
 function draw(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
+    if(imageTheme){
+        ctx.drawImage(
+        images.background,
+        0,
+        0,
+        canvas.width,
+        canvas.height);
 
-    ctx.fillStyle = colors.background;
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-
-    drawGrid();
-
-    for(let i = 0; i < snake.length; i++){
-        ctx.fillStyle = colors.snake;
-        ctx.fillRect(board.x + snake[i].x * tileSize,
-            board.y + snake[i].y * tileSize,
-            tileSize,
-            tileSize);
+        ctx.fillStyle = "rgba(27, 16, 40, 0.35)";
+        ctx.fillRect(
+            board.x,
+            board.y,
+            board.width,
+            board.height
+        );
+    }
+    else{
+        ctx.fillStyle = colors.background;
+        ctx.fillRect(0,0,canvas.width,canvas.height);
     }
 
-    ctx.fillStyle = colors.food;
-    ctx.fillRect(board.x + food.x * tileSize,
+    drawGrid();
+        if(imageTheme){
+            for(let i = 0; i < snake.length; i++){
+
+            let snakeImage;
+
+            if(i === 0){
+                snakeImage = images.snake;
+            }
+        else{
+            snakeImage = images.snake2;
+        }
+
+    ctx.drawImage(
+        snakeImage,
+        board.x + snake[i].x * tileSize,
+        board.y + snake[i].y * tileSize,
+        tileSize,
+        tileSize
+    );
+}
+
+
+        ctx.drawImage(
+        images.food,
+        board.x + food.x * tileSize,
         board.y + food.y * tileSize,
         tileSize,
         tileSize);
+    }
+    else{
+        for(let i = 0; i < snake.length; i++){
+            ctx.fillStyle = colors.snake;
+            ctx.fillRect(board.x + snake[i].x * tileSize,
+                board.y + snake[i].y * tileSize,
+                tileSize,
+                tileSize);
+            }
+
+        ctx.fillStyle = colors.food;
+        ctx.fillRect(board.x + food.x * tileSize,
+            board.y + food.y * tileSize,
+            tileSize,
+            tileSize);
+    }
 
     ctx.strokeStyle = colors.border;
     ctx.lineWidth = Math.min(board.width, board.height) * 0.005;
@@ -467,9 +651,26 @@ function draw(){
 function drawStart(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
+    if(imageTheme){
+        ctx.drawImage(
+        images.background,
+        0,
+        0,
+        canvas.width,
+        canvas.height);
 
-    ctx.fillStyle = colors.background;
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle = "rgba(27, 16, 40, 0.35)";
+        ctx.fillRect(
+            board.x,
+            board.y,
+            board.width,
+            board.height
+        );
+    }
+    else{
+        ctx.fillStyle = colors.background;
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+    }
 
     drawGrid();
 
@@ -483,6 +684,7 @@ function drawStart(){
         board.height
     );
 
+
     for(const button of Startbuttons){
 
         button.width = board.width * 0.25;
@@ -493,14 +695,24 @@ function drawStart(){
 
         drawBtn(button);
     }
+
 };
 
 function drawGameover(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    ctx.fillStyle = colors.background;
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-
+    if(imageTheme){
+        ctx.drawImage(
+        images.background,
+        0,
+        0,
+        canvas.width,
+        canvas.height);
+    }
+    else{
+        ctx.fillStyle = colors.background;
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+    }
     ctx.strokeStyle = colors.border;
     ctx.lineWidth = Math.min(board.width, board.height) * 0.005;
 
@@ -511,19 +723,40 @@ function drawGameover(){
         board.height
     );
 
-    ctx.fillStyle = colors.gameoverbg; 
-    ctx.fillRect(board.x,board.y,board.width,board.height);
+    if(imageTheme){
+        ctx.drawImage(
+        images.board,
+        board.x,
+        board.y,
+        board.width,
+        board.height);
 
-    ctx.fillStyle = colors.sub;
-    ctx.font = `${board.height * 0.08}px Arial`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
+        ctx.fillStyle = colors.gameoverbg;
+        ctx.font = `${board.height * 0.08}px Arial`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
 
-    ctx.fillText(
+        ctx.fillText(
+        "GAME OVER",
+        board.x + board.width / 2,
+        board.y + board.height / 9
+    )
+    }
+    else{
+        ctx.fillStyle = colors.gameoverbg; 
+        ctx.fillRect(board.x,board.y,board.width,board.height);
+
+        ctx.fillStyle = colors.sub;
+        ctx.font = `${board.height * 0.08}px Arial`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+         ctx.fillText(
         "GAME OVER",
         board.x + board.width / 2,
         board.y + board.height / 2
     )
+    }
 
     for(const button of Startbuttons){
 
@@ -677,8 +910,18 @@ function drawUI(){
 function drawSettings(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    ctx.fillStyle = colors.menu;
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+    if(imageTheme){
+        ctx.drawImage(
+        images.background,
+        0,
+        0,
+        canvas.width,
+        canvas.height);
+    }
+    else{
+        ctx.fillStyle = colors.menu;
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+    }
 
     ctx.fillStyle = colors.menuBackground; 
     ctx.fillRect(board.x,board.y,board.width,board.height);
@@ -810,8 +1053,18 @@ function drawSettings(){
 function drawExtra(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    ctx.fillStyle = colors.menu;
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+    if(imageTheme){
+        ctx.drawImage(
+        images.background,
+        0,
+        0,
+        canvas.width,
+        canvas.height);
+    }
+    else{
+        ctx.fillStyle = colors.menu;
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+    }
 
     ctx.fillStyle = colors.menuBackground; 
     ctx.fillRect(board.x,board.y,board.width,board.height);
@@ -854,11 +1107,12 @@ function drawExtra(){
     const theme7 = extraBtns[7];
     const theme8 = extraBtns[8];
     const theme9 = extraBtns[9];
+    const bakemono = extraBtns[10];
 
     for(const button of extraBtns){
         if(button.action === "leave") continue;
 
-        button.fontScale = 0.3;
+        button.fontScale = 0.3; 
     }
     
 
@@ -889,6 +1143,21 @@ function drawExtra(){
     theme9.x = board.x + board.width - gap - theme3.width;
     theme9.y = board.y + board.height / 1.75;
 
+    bakemono.x = board.x + gap;
+    bakemono.y = board.y + board.height / 1.25;
+    bakemono.width = board.width * 0.8;
+    bakemono.height = board.height * 0.1;
+    bakemono.fontScale = 0.5;
+    
+    if(highscore.text >= 50){
+        bakemono.text = "BAKEMONOGATARI";
+        bakemono.locked = false;
+    }
+    else{
+        bakemono.text = "UNLOCK BY GETTING 50 POINTS";
+        bakemono.locked = true;
+    }
+
     drawBtn(theme1);
     drawBtn(theme2);
     drawBtn(theme3);
@@ -898,6 +1167,7 @@ function drawExtra(){
     drawBtn(theme7);
     drawBtn(theme8);
     drawBtn(theme9);
+    drawBtn(bakemono);
 
     const leaveBtn = extraBtns[3];
 
@@ -928,7 +1198,16 @@ function drawPause(){
 }
 
 function drawBtn(button){
-    ctx.fillStyle = colors.btnbackground;
+
+    if (button.pressed) {
+    ctx.fillStyle = colors.btnclick;
+    }
+    else if (button.hover) {
+        ctx.fillStyle = colors.btnhover;
+    }
+    else {
+        ctx.fillStyle = colors.btnbackground;
+    }
     ctx.strokeStyle = colors.sub;
     ctx.lineWidth = 2;
 
@@ -987,11 +1266,19 @@ function gameLogic(){
     if(checkCollision()){
         score.text = 0;
         gameState = states.GAMEOVER;
+
+        if(imageTheme){
+            sounds.lost.play();
+        }
     }
     else{
                 
         if(snake[0].x === food.x && snake[0].y === food.y){
             createFood();
+            if(imageTheme){
+                let eat = sounds.getPoint.cloneNode();
+                eat.play();
+            }
             score.text ++;
             if(score.text >= highscore.text){
                 highscore.text = score.text;
@@ -1124,6 +1411,16 @@ function restartGame(){
     nextDirection = "right";
     
 }
+
+function toggleThemeMusic(enabled){
+    if(enabled){
+        sounds.music.play();
+    }
+    else{
+        sounds.music.pause();
+        sounds.music.currentTime = 0;
+    }
+}
 document.addEventListener("keydown", event =>{
     
     if(event.key === "ArrowUp" || event.key === "w"){
@@ -1143,6 +1440,8 @@ document.addEventListener("keydown", event =>{
     }
 
     if(event.key === "r" && gameState === states.GAMEOVER){
+        sounds.lost.pause();
+        sounds.lost.currentTime = 0;
         gameState = states.GAME;
         restartGame();
     }
@@ -1150,8 +1449,8 @@ document.addEventListener("keydown", event =>{
     if(event.code === "Space"){
         if(gameState === states.GAME){
             gameState = states.PAUSE;
-            pauseSound.volume = 0.2;
-            pauseSound.play();
+            sounds.pause.volume = 0.2;
+            sounds.pause.play();
         }
         else if(gameState === states.PAUSE){
             gameState = states.GAME;
@@ -1159,6 +1458,8 @@ document.addEventListener("keydown", event =>{
     }
 
     if(event.key === "Escape"){
+            sounds.lost.pause();
+            sounds.lost.currentTime = 0;
             gameState = states.MENU;
             score.text = 0;
     }
@@ -1179,14 +1480,17 @@ canvas.addEventListener("pointerdown", event =>{
         console.log(button.action);
         switch (button.action) {
             case "play":
+                button.pressed = true;
                 gameState = states.START;
                 return;
 
             case "settings":
+                button.pressed = true;
                 gameState = states.SETTINGS;
                 return;
 
             case "extras":
+                button.pressed = true;
                 gameState = states.EXTRA;
                 return;
         }
@@ -1204,6 +1508,9 @@ canvas.addEventListener("pointerdown", event =>{
             ){
                 switch(button.action){
                     case "playgame":
+                        sounds.lost.pause();
+                        sounds.lost.currentTime = 0;
+                        button.pressed = true;
                         if(gameState === states.START || gameState === states.GAMEOVER){
                             gameState = states.GAME;
                             restartGame();
@@ -1224,36 +1531,44 @@ canvas.addEventListener("pointerdown", event =>{
             ){
                 switch(button.action){
                     case "leavegame":
+                        sounds.lost.pause();
+                        sounds.lost.currentTime = 0;
+                        button.pressed = true;
                         gameState = states.MENU;
                         score.text = 0;
                         break;
                 }
                 switch(button.action){
                     case "goup":
+                        button.pressed = true;
                         nextDirection = "up";
                         break;
                 }
                 switch(button.action){
                     case "godown":
+                        button.pressed = true;
                         nextDirection = "down";
                         break;
                 }
                 switch(button.action){
                     case "goleft":
+                        button.pressed = true;
                         nextDirection = "left";
                         break;
                 }
                 switch(button.action){
                     case "goright":
+                        button.pressed = true;
                         nextDirection = "right";
                         break;
                 }  
                 switch(button.action){
                     case "pause":
+                        button.pressed = true;
                         if(gameState === states.GAME){
                             gameState = states.PAUSE;
-                            pauseSound.volume = 0.2;
-                            pauseSound.play();
+                            sounds.pause.volume = 0.2;
+                            sounds.pause.play();
                         }
                         else if(gameState === states.PAUSE){
                             gameState = states.GAME;
@@ -1276,30 +1591,37 @@ canvas.addEventListener("pointerdown", event =>{
             ){
                 switch(button.action){
                     case "reduceSize":
+                        button.pressed = true;
                         arrowScale = Math.max(0, Number((arrowScale - 0.05).toFixed(2)));
                         localStorage.setItem("arrowScale", arrowScale);
                         break;
                     case "addSize":
+                        button.pressed = true;
                         arrowScale = Math.min(3, Number((arrowScale + 0.05).toFixed(2)));
                         localStorage.setItem("arrowScale", arrowScale);
                         break;
                     case "reduceX":
+                        button.pressed = true;
                         Xscale = Number((Xscale + 0.05).toFixed(2));
                         localStorage.setItem("Xscale", Xscale);
                         break;
                     case "addX":
+                        button.pressed = true;
                         Xscale = Number((Xscale - 0.05).toFixed(2));
                         localStorage.setItem("Xscale", Xscale);
                         break;
                     case "reduceY":
+                        button.pressed = true;
                         Yscale = Number((Yscale - 0.05).toFixed(2));
                         localStorage.setItem("Yscale", Yscale);
                         break;
                     case "addY":
+                        button.pressed = true;
                         Yscale = Number((Yscale + 0.05).toFixed(2));
                         localStorage.setItem("Yscale", Yscale);
                         break;
                     case "leave":
+                        button.pressed = true;
                         gameState = states.MENU;
                         break;
                 }
@@ -1317,50 +1639,167 @@ canvas.addEventListener("pointerdown", event =>{
             ){
                 switch(button.action){
                     case "changetheme1":
+                        button.pressed = true;
                         colors = themes.classic;
+                        toggleThemeMusic(false);
                         localStorage.setItem("theme", "classic");
+                        imageTheme = false;
+                        localStorage.setItem("imageTheme", false);
                         break;
                     case "changetheme2":
+                        button.pressed = true;
                         colors = themes.neon;
+                        toggleThemeMusic(false);
+                        imageTheme = false;
+                        localStorage.setItem("imageTheme", false);
                         localStorage.setItem("theme", "neon");
                         break;
                     case "changetheme3":
+                        button.pressed = true;
                         colors = themes.light;
+                        toggleThemeMusic(false);
+                        imageTheme = false;
+                        localStorage.setItem("imageTheme", false);
                         localStorage.setItem("theme", "light");
                         break;
                     case "changetheme4":
+                        button.pressed = true;
                         colors = themes.earth;
+                        toggleThemeMusic(false);
+                        imageTheme = false;
+                        localStorage.setItem("imageTheme", false);
                         localStorage.setItem("theme", "earth");
                         break;
                     case "changetheme5":
+                        button.pressed = true;
                         colors = themes.purple;
+                        toggleThemeMusic(false);
+                        imageTheme = false;
+                        localStorage.setItem("imageTheme", false);
                         localStorage.setItem("theme", "purple");
                         break;
                     case "changetheme6":
+                        button.pressed = true;
                         colors = themes.elfenlied;
+                        toggleThemeMusic(false);
+                        imageTheme = false;
+                        localStorage.setItem("imageTheme", false);
                         localStorage.setItem("theme", "elfenlied");
                         break;
                     case "changetheme7":
+                        button.pressed = true;
                         colors = themes.sewers;
+                        toggleThemeMusic(false);
                         localStorage.setItem("theme", "sewers");
+                        imageTheme = false;
+                        localStorage.setItem("imageTheme", false);
                         break;
                     case "changetheme8":
+                        button.pressed = true;
                         colors = themes.ocean;
+                        toggleThemeMusic(false);
                         localStorage.setItem("theme", "ocean");
+                        imageTheme = false;
+                        localStorage.setItem("imageTheme", false);
                         break;
                     case "changetheme9":
+                        button.pressed = true;
                         colors = themes.fall;
+                        toggleThemeMusic(false);
                         localStorage.setItem("theme", "fall");
+                        imageTheme = false;
+                        localStorage.setItem("imageTheme", false);
+                        
                         break;
-                    /*case "changetheme3":
-                        colors = themes.light;
-                        localStorage.setItem("theme", "light");
-                        break;*/
+                    case "changetheme10":
+                        if(button.locked){
+                            break;
+                        }
+                        else{
+                            button.pressed = true;
+                            imageTheme = true;
+                            colors = themes.bake;
+                            localStorage.setItem("theme", "bake");
+                            localStorage.setItem("imageTheme", true);
+
+                            toggleThemeMusic(true);
+                            break;
+                        }
                     case "leave":
+                        button.pressed = true;
                         gameState = states.MENU;
                         break;
                 }
             }
+        }
+    }
+});
+
+canvas.addEventListener("pointermove", event => {
+    const mouseX = event.offsetX;
+    const mouseY = event.offsetY;
+
+    const allButtons = [
+    ...Menubuttons,
+    ...Startbuttons,
+    ...UIbuttons,
+    ...settingsBtns,
+    ...extraBtns];
+
+    for (const button of allButtons) {
+        button.hover = false;
+    }
+
+    let buttons = [];
+
+    switch (gameState) {
+        case states.MENU:
+            buttons = Menubuttons;
+            break;
+        case states.START:
+            buttons = [...Startbuttons, ...UIbuttons];
+            break;
+        case states.SETTINGS:
+            buttons = settingsBtns;
+            break;
+        case states.EXTRA:
+            buttons = extraBtns;
+            break;
+        case states.START:
+        case states.GAME:
+        case states.PAUSE:
+        case states.GAMEOVER:
+            buttons = UIbuttons;
+            break;
+    }
+
+    let hovering = false;
+
+    for (const button of buttons) {
+        button.hover =
+        mouseX >= button.x &&
+        mouseX <= button.x + button.width &&
+        mouseY >= button.y &&
+        mouseY <= button.y + button.height;
+
+        if(button.hover){
+            hovering = true;
+        }
+    }
+
+    canvas.style.cursor = hovering ? "pointer" : "default";
+});
+
+canvas.addEventListener("pointerup", () => {
+    for (const list of [
+        Menubuttons,
+        Startbuttons,
+        UIbuttons,
+        settingsBtns,
+        extraBtns
+    ]) {
+        for (const button of list) {
+            button.pressed = false;
         }
     }
 });
