@@ -1,8 +1,15 @@
 body{
     margin:0;
     overflow:hidden;
+    touch-action: none;
 }
 #game{
     display:block;
 }
  
+canvas {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
